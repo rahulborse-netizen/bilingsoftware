@@ -1,0 +1,89 @@
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║         🎾 TENNIS BILLING SOFTWARE - QUICK START 🎾          ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+📌 YOU NOW HAVE 2 VERSIONS:
+
+┌──────────────────────────────────────────────────────────────┐
+│  1️⃣  SIMPLE VERSION (Recommended for 80-year-olds!)         │
+│                                                              │
+│  ✅ HUGE text and buttons (easy to see and click)           │
+│  ✅ One-page interface (no confusing menus)                 │
+│  ✅ Just log daily lessons quickly                          │
+│  ✅ Import/Export your Excel file                           │
+│  ✅ Perfect for daily use                                   │
+│                                                              │
+│  🚀 TO START:                                                │
+│     Double-click: START_SIMPLE.bat                          │
+│     Then open: http://localhost:5001                        │
+└──────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────┐
+│  2️⃣  FULL VERSION (Complete business management)            │
+│                                                              │
+│  ✅ Customer management                                      │
+│  ✅ Court bookings                                           │
+│  ✅ Equipment rentals                                        │
+│  ✅ Memberships                                              │
+│  ✅ Invoices & Payments                                      │
+│  ✅ Financial reports with charts                            │
+│                                                              │
+│  🚀 TO START:                                                │
+│     Double-click: START_FULL.bat                            │
+│     Then open: http://localhost:5000                        │
+└──────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════
+
+📱 ACCESS FROM YOUR PHONE:
+
+1. Make sure your phone is on the SAME WiFi as your computer
+2. Find your computer's IP address:
+   - Open Command Prompt
+   - Type: ipconfig
+   - Look for "IPv4 Address" (e.g., 192.168.1.100)
+3. On your phone's browser, go to:
+   - Simple Version: http://192.168.1.100:5001
+   - Full Version: http://192.168.1.100:5000
+
+═══════════════════════════════════════════════════════════════
+
+📥 IMPORT YOUR EXCEL DATA (First Time Only):
+
+SIMPLE VERSION:
+1. Start the app (START_SIMPLE.bat)
+2. Click "📥 Import from Excel" button
+3. Select: 1st-31 Jan 2026.xlsx
+4. Done! All 1,075 lessons imported
+
+═══════════════════════════════════════════════════════════════
+
+💡 WHICH ONE TO USE?
+
+For 80-year-old or daily quick logging:
+→ Use SIMPLE VERSION (START_SIMPLE.bat)
+   Everything is BIGGER and SIMPLER!
+
+For complete business management:
+→ Use FULL VERSION (START_FULL.bat)
+   More features, reports, and options
+
+═══════════════════════════════════════════════════════════════
+
+📚 MORE HELP:
+
+• Simple Version Guide: SIMPLE_VERSION_README.md
+• Full Version Guide: README.md
+
+═══════════════════════════════════════════════════════════════
+
+🎯 RECOMMENDED FOR YOU:
+
+Based on your Excel file (just logging daily lessons),
+I recommend using the SIMPLE VERSION!
+
+Just double-click: START_SIMPLE.bat
+
+═══════════════════════════════════════════════════════════════

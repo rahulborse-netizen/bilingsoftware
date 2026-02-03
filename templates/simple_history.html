@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Lesson History</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* MOBILE-FIRST DESIGN */
+        body {
+            font-size: 22px !important;
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            padding-bottom: 100px; /* Space for bottom nav */
+        }
+        
+        h1 {
+            font-size: 48px !important;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .btn-huge {
+            font-size: 28px !important;
+            padding: 20px 40px !important;
+            margin: 10px;
+            min-height: 80px;
+            font-weight: bold;
+            border-radius: 15px !important;
+        }
+        
+        .form-control {
+            font-size: 24px !important;
+            padding: 15px !important;
+            border: 3px solid #ced4da !important;
+            border-radius: 10px !important;
+        }
+        
+        table {
+            font-size: 22px !important;
+        }
+        
+        table th {
+            font-size: 24px !important;
+            font-weight: bold;
+            background-color: #e9ecef !important;
+            padding: 15px !important;
+        }
+        
+        table td {
+            padding: 15px !important;
+        }
+        
+        .card {
+            border: 3px solid #dee2e6 !important;
+            border-radius: 15px !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .card-header {
+            font-size: 32px !important;
+            font-weight: bold;
+            padding: 20px !important;
+            background-color: #007bff !important;
+            color: white !important;
+            border-radius: 12px 12px 0 0 !important;
+        }
+        
+        .card-body {
+            padding: 30px !important;
+        }
+        
+        .total-box {
+            background-color: #28a745;
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 42px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .nav-huge {
+            font-size: 26px !important;
+            padding: 15px 30px !important;
+        }
+        
+        .action-button {
+            font-size: 22px !important;
+            padding: 15px 30px !important;
+            margin: 5px;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 3px solid #dee2e6;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .bottom-nav-item {
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+            color: #6c757d;
+            padding: 10px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .bottom-nav-item:hover, .bottom-nav-item.active {
+            color: #007bff;
+            transform: scale(1.1);
+        }
+        
+        .bottom-nav-icon {
+            font-size: 32px;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Navigation -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <h1>📊 Lesson History</h1>
+                    <div>
+                        <a href="/" class="btn btn-primary nav-huge">📝 Back to Today</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter by Date -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <form method="get" action="/history" class="d-flex gap-3">
+                    <input type="date" name="date" class="form-control" value="{{ selected_date or '' }}" onchange="this.form.submit()">
+                    <a href="/history" class="btn btn-secondary action-button">Show All</a>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Total -->
+        <div class="row">
+            <div class="col-12">
+                <div class="total-box">
+                    Total: ${{ "%.2f"|format(total) }}
+                    {% if selected_date %}
+                    <div style="font-size: 24px; margin-top: 10px;">
+                        for {{ selected_date }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lessons Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        All Lessons
+                    </div>
+                    <div class="card-body">
+                        {% if lessons %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Student Name</th>
+                                        <th>Hours</th>
+                                        <th>Package</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for lesson in lessons %}
+                                    <tr>
+                                        <td><strong>{{ lesson.date.strftime('%m/%d/%Y') }}</strong></td>
+                                        <td>{{ lesson.time }}</td>
+                                        <td><strong>{{ lesson.student_name }}</strong></td>
+                                        <td>{{ lesson.hours }}</td>
+                                        <td>{{ lesson.package or '-' }}</td>
+                                        <td style="color: #28a745; font-weight: bold;">
+                                            ${{ "%.2f"|format(lesson.invoice_amount) }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info" style="font-size: 26px;">
+                            📝 No lessons found for the selected date.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Export Button -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="/export_excel" class="btn btn-success btn-huge">
+                    📤 EXPORT TO EXCEL
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="/" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🏠</span>
+            <div>Home</div>
+        </a>
+        <a href="/packages" class="bottom-nav-item">
+            <span class="bottom-nav-icon">📦</span>
+            <div>Packages</div>
+        </a>
+        <a href="/coaches" class="bottom-nav-item">
+            <span class="bottom-nav-icon">👨‍🏫</span>
+            <div>Coaches</div>
+        </a>
+        <a href="/notifications" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🔔</span>
+            <div>Alerts</div>
+        </a>
+        <a href="/history" class="bottom-nav-item active">
+            <span class="bottom-nav-icon">📊</span>
+            <div>History</div>
+        </a>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

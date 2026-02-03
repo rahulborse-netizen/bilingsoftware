@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Notifications - Tennis Billing</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-size: 22px !important;
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            padding-bottom: 100px;
+        }
+        
+        h1 {
+            font-size: 42px !important;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .notification-card {
+            border: 3px solid #dee2e6;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background: white;
+            transition: all 0.2s;
+        }
+        
+        .notification-card:hover {
+            transform: translateX(10px);
+        }
+        
+        .notification-card.unread {
+            background: #e7f3ff;
+            border-left: 8px solid #007bff;
+        }
+        
+        .notification-card.high-priority {
+            border-left: 8px solid #dc3545;
+        }
+        
+        .notification-card.medium-priority {
+            border-left: 8px solid #ffc107;
+        }
+        
+        .notification-title {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .notification-message {
+            font-size: 20px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        
+        .notification-time {
+            font-size: 16px;
+            color: #adb5bd;
+        }
+        
+        .notification-icon {
+            font-size: 48px;
+            margin-right: 15px;
+        }
+        
+        .btn-huge {
+            font-size: 28px !important;
+            padding: 20px 40px !important;
+            margin: 10px 5px;
+            min-height: 80px;
+            font-weight: bold;
+            border-radius: 15px !important;
+        }
+        
+        .btn-action {
+            font-size: 18px !important;
+            padding: 10px 20px !important;
+            margin: 5px;
+            min-height: 50px;
+            font-weight: bold;
+            border-radius: 10px !important;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 3px solid #dee2e6;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .bottom-nav-item {
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+            color: #6c757d;
+            padding: 10px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .bottom-nav-item:hover, .bottom-nav-item.active {
+            color: #007bff;
+            transform: scale(1.1);
+        }
+        
+        .bottom-nav-icon {
+            font-size: 32px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .badge-notify {
+            background: #dc3545;
+            color: white;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1>
+                    🔔 Notifications
+                    {% if notifications|selectattr('is_read', 'equalto', False)|list|length > 0 %}
+                    <span class="badge-notify">{{ notifications|selectattr('is_read', 'equalto', False)|list|length }}</span>
+                    {% endif %}
+                </h1>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <button class="btn btn-primary btn-action" onclick="markAllRead()">
+                    ✅ Mark All Read
+                </button>
+                <button class="btn btn-secondary btn-action" onclick="filterNotifications('all')">
+                    All
+                </button>
+                <button class="btn btn-info btn-action" onclick="filterNotifications('unread')">
+                    Unread Only
+                </button>
+            </div>
+        </div>
+        
+        <!-- Notifications List -->
+        <div class="row">
+            <div class="col-12" id="notificationsContainer">
+                {% if notifications %}
+                    {% for notification in notifications %}
+                    <div class="notification-card {% if not notification.is_read %}unread{% endif %} {{ notification.priority }}-priority" 
+                         data-read="{{ notification.is_read }}" data-id="{{ notification.id }}">
+                        <div class="d-flex align-items-start">
+                            <div class="notification-icon">
+                                {% if notification.type == 'package_expiring' %}
+                                    ⚠️
+                                {% elif notification.type == 'monthly_export' %}
+                                    📊
+                                {% elif notification.type == 'coach_milestone' %}
+                                    🏆
+                                {% else %}
+                                    ℹ️
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="notification-title">
+                                    {{ notification.title }}
+                                    {% if not notification.is_read %}
+                                    <span class="badge bg-primary" style="font-size: 16px;">NEW</span>
+                                    {% endif %}
+                                </div>
+                                <div class="notification-message">
+                                    {{ notification.message }}
+                                </div>
+                                <div class="notification-time">
+                                    {{ notification.get_time_ago() }}
+                                </div>
+                                <div class="mt-2">
+                                    {% if not notification.is_read %}
+                                    <button class="btn btn-sm btn-success btn-action" onclick="markRead({{ notification.id }})">
+                                        ✓ Mark Read
+                                    </button>
+                                    {% endif %}
+                                    
+                                    {% if notification.package_id %}
+                                    <button class="btn btn-sm btn-primary btn-action" onclick="viewPackage({{ notification.package_id }})">
+                                        View Package
+                                    </button>
+                                    {% endif %}
+                                    
+                                    {% if notification.coach_id %}
+                                    <button class="btn btn-sm btn-primary btn-action" onclick="viewCoach({{ notification.coach_id }})">
+                                        View Coach
+                                    </button>
+                                    {% endif %}
+                                    
+                                    <button class="btn btn-sm btn-danger btn-action" onclick="deleteNotification({{ notification.id }})">
+                                        🗑️ Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info" style="font-size: 26px;">
+                        ✅ No notifications. You're all caught up!
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="/" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🏠</span>
+            <div>Home</div>
+        </a>
+        <a href="/packages" class="bottom-nav-item">
+            <span class="bottom-nav-icon">📦</span>
+            <div>Packages</div>
+        </a>
+        <a href="/coaches" class="bottom-nav-item">
+            <span class="bottom-nav-icon">👨‍🏫</span>
+            <div>Coaches</div>
+        </a>
+        <a href="/notifications" class="bottom-nav-item active">
+            <span class="bottom-nav-icon">🔔</span>
+            <div>Alerts</div>
+        </a>
+        <a href="/history" class="bottom-nav-item">
+            <span class="bottom-nav-icon">📊</span>
+            <div>History</div>
+        </a>
+    </div>
+    
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" style="font-size: 22px;"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function markRead(id) {
+            fetch(`/api/notifications/${id}/mark_read`, {method: 'POST'})
+                .then(r => r.json())
+                .then(() => {
+                    showToast('✅ Marked as read');
+                    setTimeout(() => location.reload(), 500);
+                });
+        }
+        
+        function markAllRead() {
+            fetch('/api/notifications/mark_all_read', {method: 'POST'})
+                .then(r => r.json())
+                .then(() => {
+                    showToast('✅ All notifications marked as read');
+                    setTimeout(() => location.reload(), 1000);
+                });
+        }
+        
+        function deleteNotification(id) {
+            if (confirm('Delete this notification?')) {
+                fetch(`/api/notifications/${id}`, {method: 'DELETE'})
+                    .then(r => r.json())
+                    .then(() => {
+                        showToast('✅ Notification deleted');
+                        document.querySelector(`[data-id="${id}"]`).remove();
+                    });
+            }
+        }
+        
+        function viewPackage(id) {
+            window.location.href = `/packages?id=${id}`;
+        }
+        
+        function viewCoach(id) {
+            window.location.href = `/coaches?id=${id}`;
+        }
+        
+        function filterNotifications(filter) {
+            const cards = document.querySelectorAll('.notification-card');
+            
+            cards.forEach(card => {
+                const isRead = card.dataset.read === 'True';
+                
+                if (filter === 'all') {
+                    card.style.display = 'block';
+                } else if (filter === 'unread' && !isRead) {
+                    card.style.display = 'block';
+                } else if (filter === 'unread' && isRead) {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('successToast');
+            toast.querySelector('.toast-body').textContent = message;
+            new bootstrap.Toast(toast, {delay: 3000}).show();
+        }
+    </script>
+</body>
+</html>

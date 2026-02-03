@@ -1,0 +1,196 @@
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║    🎾 TENNIS BILLING - INSTALLATION QUICK STEPS 🎾          ║
+║              (Print and follow along)                        ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+FOR: Helping client install on their device
+TIME: 30 minutes total
+TOOLS: TeamViewer or phone call
+
+═══════════════════════════════════════════════════════════════
+
+☑️ STEP 1: INSTALL PYTHON (5 min)
+─────────────────────────────────
+
+1. Go to: python.org/downloads
+2. Click: Download Python
+3. Run installer
+4. ✅ CHECK: "Add Python to PATH" ← IMPORTANT!
+5. Click: Install Now
+6. Wait 2-3 minutes
+7. Test: Open CMD, type: python --version
+
+═══════════════════════════════════════════════════════════════
+
+☑️ STEP 2: EXTRACT SOFTWARE (2 min)
+────────────────────────────────────
+
+1. Find: TennisBilling_v1.0.zip (on Desktop)
+2. Right-click → Extract All
+3. Click: Extract
+4. Open the extracted folder
+5. See files: START_SIMPLE.bat, templates/, etc.
+
+═══════════════════════════════════════════════════════════════
+
+☑️ STEP 3: INSTALL PACKAGES (3 min)
+────────────────────────────────────
+
+1. In folder: Shift + Right-click empty space
+2. Choose: "Open PowerShell window here"
+3. Type: pip install -r requirements.txt
+4. Press: Enter
+5. Wait 1-2 minutes (text scrolls)
+6. See: "Successfully installed..."
+7. Close window
+
+═══════════════════════════════════════════════════════════════
+
+☑️ STEP 4: RUN SOFTWARE (2 min)
+────────────────────────────────
+
+1. Double-click: START_SIMPLE.bat
+2. Black window opens (KEEP IT OPEN!)
+3. Wait for: "Running on http://127.0.0.1:5001"
+4. Open browser (Chrome/Edge/Firefox)
+5. Type: http://localhost:5001
+6. Press: Enter
+7. See software! 🎉
+
+═══════════════════════════════════════════════════════════════
+
+☑️ STEP 5: IMPORT DATA (2 min)
+───────────────────────────────
+
+1. Click: 📥 Import from Excel
+2. Select: 1st-31 Jan 2026.xlsx
+3. Click: Open
+4. Wait 5-10 seconds
+5. See: "✅ Imported 1075 lessons!"
+6. Numbers update in green/blue boxes
+
+═══════════════════════════════════════════════════════════════
+
+☑️ STEP 6: TEST (2 min)
+────────────────────────
+
+1. Click: ➕ ADD NEW LESSON (big green button)
+2. Fill:
+   - Time: "4-5 pm"
+   - Student: "Test Student"
+   - Hours: 1.0
+   - Amount: 100.00
+3. Click: 💾 Save
+4. See lesson in table
+5. Today's Total shows: $100.00
+
+✅ SUCCESS! Software working!
+
+═══════════════════════════════════════════════════════════════
+
+☑️ STEP 7: CREATE SHORTCUT (1 min)
+───────────────────────────────────
+
+1. Right-click: START_SIMPLE.bat
+2. Send to → Desktop (create shortcut)
+3. Now easy to start from Desktop!
+
+═══════════════════════════════════════════════════════════════
+
+📱 OPTIONAL: PHONE ACCESS (5 min)
+──────────────────────────────────
+
+1. On computer: Open CMD
+2. Type: ipconfig
+3. Note: IPv4 Address (e.g., 192.168.1.100)
+4. On phone:
+   - Same WiFi as computer
+   - Browser: http://192.168.1.100:5001
+   - Works!
+
+═══════════════════════════════════════════════════════════════
+
+✅ FINAL CHECKLIST:
+───────────────────
+
+□ Python installed and working
+□ Software extracted to easy location
+□ Packages installed (no errors)
+□ Software runs (black window open)
+□ Browser shows software
+□ Data imported (1075 lessons)
+□ Test lesson added successfully
+□ Desktop shortcut created
+□ Client knows how to start
+□ Client knows how to add lessons
+□ Client knows how to export
+□ Your contact info saved
+
+═══════════════════════════════════════════════════════════════
+
+🔧 QUICK TROUBLESHOOTING:
+──────────────────────────
+
+Problem: "Python not recognized"
+Fix: Reinstall Python, CHECK "Add to PATH"
+
+Problem: "pip not found"
+Fix: Use: python -m pip install -r requirements.txt
+
+Problem: "Can't open browser"
+Fix: Check black window is running
+
+Problem: "Can't access from phone"
+Fix: Same WiFi, check firewall
+
+═══════════════════════════════════════════════════════════════
+
+📋 DAILY USE (For Client):
+───────────────────────────
+
+START:
+1. Double-click Desktop shortcut
+2. Open: http://localhost:5001
+
+ADD LESSON:
+1. Click: ➕ ADD NEW LESSON
+2. Fill form (10 seconds)
+3. Click: 💾 Save
+
+EXPORT:
+1. Click: 📤 Export to Excel
+2. Done!
+
+STOP:
+1. Close black window
+
+═══════════════════════════════════════════════════════════════
+
+📞 YOUR CONTACT:
+────────────────
+
+Your Name: _______________________
+Your Phone: _______________________
+Your Email: _______________________
+Support Hours: _____________________
+
+═══════════════════════════════════════════════════════════════
+
+💡 REMEMBER:
+─────────────
+
+✓ Be patient with client
+✓ Speak slowly and clearly
+✓ Repeat if needed
+✓ Celebrate each successful step!
+✓ Test together before ending call
+
+═══════════════════════════════════════════════════════════════
+
+🎉 INSTALLATION COMPLETE!
+
+Client is ready to use the Tennis Billing Software!
+
+═══════════════════════════════════════════════════════════════
