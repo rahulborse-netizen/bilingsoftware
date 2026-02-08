@@ -6,6 +6,7 @@ __pycache__/
 .Python
 env/
 venv/
+.venv/
 ENV/
 build/
 develop-eggs/
@@ -15,6 +16,9 @@ eggs/
 .eggs/
 lib/
 lib64/
+# But keep static/lib/ for offline assets
+!static/lib/
+!static/lib/**
 parts/
 sdist/
 var/
@@ -31,6 +35,7 @@ wheels/
 # IDE
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~
@@ -43,9 +48,9 @@ desktop.ini
 # Logs
 *.log
 
-# Excel exports (optional - uncomment if you don't want to track these)
-# exports/*.xlsx
-# *.xlsx
+# Excel exports & data files
+exports/
+*.xlsx
 
 # Environment variables
 .env
@@ -56,11 +61,30 @@ desktop.ini
 *.bak
 *.cache
 
-# Client Package folder (seems like a copy)
+# Client Package folder
 ClientPackage/
 
 # Zip archives
 *.zip
 
-# Test files
-test_*.py
+# Development clutter files
+ANSWER_TO_YOUR_QUESTION.txt
+CLEANUP_PLAN.txt
+FOLDER_STRUCTURE_FINAL.txt
+HOW_TO_HELP_CLIENT_INSTALL.txt
+HOW_TO_START.txt
+WHERE_ARE_THE_FILES.txt
+QUICK_INSTALL_STEPS.txt
+
+# Dev markdown docs (keep only README.md)
+DEPLOYMENT_GUIDE.md
+IMPLEMENTATION_SUMMARY.md
+INSTALLATION_GUIDE_FOR_CLIENT.md
+MIGRATION_GUIDE.md
+MOBILE_TESTING_GUIDE.md
+QUICK_START_ENHANCED.md
+README_ENHANCED.md
+READY_TO_GO.md
+SEND_TO_CLIENT_GUIDE.md
+SIMPLE_VERSION_README.md
+START_AFTER_RESTART.md

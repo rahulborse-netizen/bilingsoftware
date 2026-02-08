@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="description" content="Tennis Academy Billing & Management System">
+    <meta name="theme-color" content="#007bff">
+    <title>{% block title %}Tennis Billing{% endblock %}</title>
+    
+    <!-- Bootstrap 5.3 - Local (Offline) -->
+    <link href="{{ url_for('static', filename='lib/bootstrap.min.css') }}" rel="stylesheet" onerror="loadFallbackCSS()">
+    
+    <!-- Bootstrap Fallback CSS (if main Bootstrap fails) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-fallback.css') }}" id="bootstrap-fallback" disabled>
+    
+    <!-- Icons - Local (Offline) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/icons.css') }}">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+    
+    <script>
+        function loadFallbackCSS() {
+            const fallback = document.getElementById('bootstrap-fallback');
+            if (fallback) fallback.disabled = false;
+        }
+    </script>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#007bff">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .modern-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .modern-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .gradient-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 25px;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border-left: 5px solid;
+        }
+        
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .stat-card.primary { border-left-color: #667eea; }
+        .stat-card.success { border-left-color: #11998e; }
+        .stat-card.warning { border-left-color: #f5576c; }
+        .stat-card.info { border-left-color: #4facfe; }
+        
+        .stat-value {
+            font-size: 42px;
+            font-weight: bold;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-modern {
+            border-radius: 12px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        
+        .btn-primary-modern {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        
+        .btn-success-modern {
+            background: var(--success-gradient);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+    
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="/" class="bottom-nav-item {% if request.path == '/' %}active{% endif %}">
+            <span class="bottom-nav-icon icon-home"></span>
+            <div>Home</div>
+        </a>
+        <a href="/packages" class="bottom-nav-item {% if request.path == '/packages' %}active{% endif %}">
+            <span class="bottom-nav-icon icon-box"></span>
+            <div>Packages</div>
+        </a>
+        <a href="/coaches" class="bottom-nav-item {% if request.path == '/coaches' %}active{% endif %}">
+            <span class="bottom-nav-icon icon-user-tie"></span>
+            <div>Coaches</div>
+        </a>
+        <a href="/analytics" class="bottom-nav-item {% if request.path == '/analytics' %}active{% endif %}">
+            <span class="bottom-nav-icon icon-chart-line"></span>
+            <div>Analytics</div>
+        </a>
+        <a href="/notifications" class="bottom-nav-item {% if request.path == '/notifications' %}active{% endif %}">
+            <span class="bottom-nav-icon icon-bell"></span>
+            <div>Alerts</div>
+            {% if unread_notifications and unread_notifications > 0 %}
+            <span class="badge-notify">{{ unread_notifications }}</span>
+            {% endif %}
+        </a>
+    </div>
+    
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" style="font-size: 22px;"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" style="font-size: 22px;"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS - Local (Offline) -->
+    <script src="{{ url_for('static', filename='js/offline-bootstrap.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/bootstrap.bundle.min.js') }}" onerror="console.warn('Bootstrap JS not found locally, using offline fallback');"></script>
+    
+    <!-- Chart.js - Local (Offline) -->
+    <script src="{{ url_for('static', filename='js/offline-charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/chart.umd.min.js') }}" onerror="console.warn('Chart.js not found locally, using offline fallback');"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mobile.js') }}"></script>
+    
+    <!-- Service Worker Registration (Offline Support) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('{{ url_for("static", filename="sw.js") }}')
+                    .then((registration) => {
+                        console.log('Service Worker registered:', registration);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -3,13 +3,18 @@ ENHANCED TENNIS BILLING - With Package Management, Coach Tracking & Mobile Optim
 Easy-to-use interface for tracking tennis lessons with advanced features
 """
 from flask import Flask, render_template, request, jsonify, send_file
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
 import os
 from io import BytesIO
 from sqlalchemy import extract, func
 import calendar
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Import models
 from models import db, Lesson, Coach, StudentPackage, Notification, MonthlyExport
@@ -144,15 +149,23 @@ def history():
     """View all lessons history"""
     selected_date = request.args.get('date')
     
-    if selected_date:
-        filter_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
-        lessons = Lesson.query.filter_by(date=filter_date).order_by(Lesson.time).all()
-    else:
+    try:
+        if selected_date:
+            filter_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
+            lessons = Lesson.query.filter_by(date=filter_date).order_by(Lesson.time).all()
+        else:
+            lessons = Lesson.query.order_by(Lesson.date.desc(), Lesson.time).limit(100).all()
+        
+        total = sum(lesson.invoice_amount for lesson in lessons)
+        unread_notifications = Notification.query.filter_by(is_read=False).count()
+        
+        return render_template('simple_history.html', lessons=lessons, total=total, selected_date=selected_date, unread_notifications=unread_notifications)
+    except ValueError:
+        # Invalid date format
         lessons = Lesson.query.order_by(Lesson.date.desc(), Lesson.time).limit(100).all()
-    
-    total = sum(lesson.invoice_amount for lesson in lessons)
-    
-    return render_template('simple_history.html', lessons=lessons, total=total, selected_date=selected_date)
+        total = sum(lesson.invoice_amount for lesson in lessons)
+        unread_notifications = Notification.query.filter_by(is_read=False).count()
+        return render_template('simple_history.html', lessons=lessons, total=total, selected_date=None, unread_notifications=unread_notifications)
 
 
 # ============================================================
@@ -166,7 +179,8 @@ def packages_page():
         StudentPackage.status.desc(),
         StudentPackage.classes_remaining
     ).all()
-    return render_template('packages.html', packages=packages)
+    unread_notifications = Notification.query.filter_by(is_read=False).count()
+    return render_template('packages.html', packages=packages, unread_notifications=unread_notifications)
 
 
 @app.route('/api/packages', methods=['GET'])
@@ -256,22 +270,38 @@ def delete_package(id):
 @app.route('/api/packages/check/<customer_name>')
 def check_package(customer_name):
     """Check if customer has active package"""
-    package = StudentPackage.query.filter_by(
-        customer_name=customer_name,
-        status='active'
-    ).filter(StudentPackage.classes_remaining > 0).first()
-    
-    if package:
+    try:
+        # Try exact match first
+        package = StudentPackage.query.filter_by(
+            customer_name=customer_name,
+            status='active'
+        ).filter(StudentPackage.classes_remaining > 0).first()
+        
+        # If no exact match, try case-insensitive
+        if not package:
+            package = StudentPackage.query.filter(
+                db.func.lower(StudentPackage.customer_name) == customer_name.lower(),
+                StudentPackage.status == 'active',
+                StudentPackage.classes_remaining > 0
+            ).first()
+        
+        if package:
+            return jsonify({
+                'success': True,
+                'has_package': True,
+                'package': package.to_dict()
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'has_package': False
+            })
+    except Exception as e:
+        logger.error(f"Error checking package: {e}")
         return jsonify({
-            'success': True,
-            'has_package': True,
-            'package': package.to_dict()
-        })
-    else:
-        return jsonify({
-            'success': True,
-            'has_package': False
-        })
+            'success': False,
+            'error': str(e)
+        }), 500
 
 
 # ============================================================
@@ -290,7 +320,8 @@ def coaches_page():
         coach.monthly_lessons = len([l for l in coach.lessons if l.date.year == today.year and l.date.month == today.month])
         coach.monthly_earnings = coach.monthly_hours * coach.hourly_rate
     
-    return render_template('coaches.html', coaches=coaches, current_month=today.strftime('%B %Y'))
+    unread_notifications = Notification.query.filter_by(is_read=False).count()
+    return render_template('coaches.html', coaches=coaches, current_month=today.strftime('%B %Y'), unread_notifications=unread_notifications)
 
 
 @app.route('/api/coaches', methods=['GET'])
@@ -396,7 +427,8 @@ def notifications_page():
         Notification.is_read,
         Notification.created_at.desc()
     ).limit(50).all()
-    return render_template('notifications.html', notifications=notifications)
+    unread_notifications = Notification.query.filter_by(is_read=False).count()
+    return render_template('notifications.html', notifications=notifications, unread_notifications=unread_notifications)
 
 
 @app.route('/api/notifications', methods=['GET'])
@@ -764,6 +796,139 @@ def get_exports():
     return jsonify({
         'success': True,
         'exports': [e.to_dict() for e in exports]
+    })
+
+
+# ============================================================
+# OFFLINE SUPPORT - Service Worker & Manifest
+# ============================================================
+
+@app.route('/sw.js')
+def service_worker():
+    """Serve service worker for offline support"""
+    return app.send_static_file('sw.js'), 200, {'Content-Type': 'application/javascript'}
+
+
+@app.route('/manifest.json')
+def manifest():
+    """Serve PWA manifest"""
+    return app.send_static_file('manifest.json'), 200, {'Content-Type': 'application/json'}
+
+
+# ============================================================
+# ANALYTICS API
+# ============================================================
+
+@app.route('/analytics')
+def analytics_page():
+    """Analytics dashboard page"""
+    unread_notifications = Notification.query.filter_by(is_read=False).count()
+    return render_template('analytics.html', unread_notifications=unread_notifications)
+
+
+@app.route('/api/analytics')
+def get_analytics():
+    """Get comprehensive analytics data"""
+    today = date.today()
+    month_start = today.replace(day=1)
+    
+    # Metrics
+    total_lessons = Lesson.query.count()
+    total_revenue = db.session.query(func.sum(Lesson.invoice_amount)).scalar() or 0.0
+    active_packages = StudentPackage.query.filter_by(status='active').count()
+    active_coaches = Coach.query.filter_by(status='active').count()
+    
+    # Revenue trend (last 30 days)
+    revenue_trend_labels = []
+    revenue_trend_data = []
+    for i in range(29, -1, -1):
+        day = today - timedelta(days=i)
+        day_lessons = Lesson.query.filter_by(date=day).all()
+        day_revenue = sum(l.invoice_amount for l in day_lessons)
+        revenue_trend_labels.append(day.strftime('%m/%d'))
+        revenue_trend_data.append(float(day_revenue))
+    
+    # Coach revenue
+    coaches = Coach.query.filter_by(status='active').all()
+    coach_revenue_labels = []
+    coach_revenue_data = []
+    for coach in coaches:
+        coach_lessons = [l for l in coach.lessons if l.date >= month_start]
+        coach_total = sum(l.invoice_amount for l in coach_lessons)
+        if coach_total > 0:
+            coach_revenue_labels.append(coach.name)
+            coach_revenue_data.append(float(coach_total))
+    
+    # Lessons per day (this month)
+    lessons_labels = []
+    lessons_data = []
+    for i in range(1, today.day + 1):
+        day = today.replace(day=i)
+        day_count = Lesson.query.filter_by(date=day).count()
+        lessons_labels.append(str(i))
+        lessons_data.append(day_count)
+    
+    # Package status
+    active_count = StudentPackage.query.filter_by(status='active').count()
+    depleted_count = StudentPackage.query.filter_by(status='depleted').count()
+    expired_count = StudentPackage.query.filter_by(status='expired').count()
+    
+    # Top students
+    student_stats = db.session.query(
+        Lesson.student_name,
+        func.count(Lesson.id).label('lessons'),
+        func.sum(Lesson.invoice_amount).label('revenue')
+    ).group_by(Lesson.student_name).order_by(func.sum(Lesson.invoice_amount).desc()).limit(5).all()
+    
+    top_students = [{
+        'name': s.student_name,
+        'lessons': s.lessons,
+        'revenue': float(s.revenue or 0)
+    } for s in student_stats]
+    
+    # Top coaches
+    top_coaches = []
+    for coach in coaches:
+        coach_lessons = [l for l in coach.lessons if l.date >= month_start]
+        total_hours = sum(l.hours for l in coach_lessons)
+        earnings = total_hours * coach.hourly_rate
+        if earnings > 0:
+            top_coaches.append({
+                'name': coach.name,
+                'hours': total_hours,
+                'earnings': earnings
+            })
+    top_coaches.sort(key=lambda x: x['earnings'], reverse=True)
+    top_coaches = top_coaches[:5]
+    
+    return jsonify({
+        'success': True,
+        'metrics': {
+            'total_revenue': float(total_revenue),
+            'total_lessons': total_lessons,
+            'active_packages': active_packages,
+            'active_coaches': active_coaches
+        },
+        'charts': {
+            'revenue_trend': {
+                'labels': revenue_trend_labels,
+                'data': revenue_trend_data
+            },
+            'coach_revenue': {
+                'labels': coach_revenue_labels,
+                'data': coach_revenue_data
+            },
+            'lessons_per_day': {
+                'labels': lessons_labels,
+                'data': lessons_data
+            },
+            'package_status': {
+                'labels': ['Active', 'Depleted', 'Expired'],
+                'data': [active_count, depleted_count, expired_count]
+            }
+        },
+        'top_students': top_students,
+        'top_coaches': top_coaches
     })
 
 

@@ -1,11 +1,6 @@
-# 🎾 Enhanced Tennis Billing Software
+# 🎾 Tennis Billing Software
 
-A comprehensive, mobile-first tennis academy management system with package tracking, coach management, and automated reporting.
-
-![Version](https://img.shields.io/badge/version-2.0-blue)
-![Python](https://img.shields.io/badge/python-3.11+-green)
-![Flask](https://img.shields.io/badge/flask-3.0.0-red)
-![License](https://img.shields.io/badge/license-MIT-yellow)
+A comprehensive, **fully offline-capable** tennis academy management system with package tracking, coach management, automated reporting, and analytics dashboard.
 
 ## ✨ Features
 
@@ -22,6 +17,14 @@ A comprehensive, mobile-first tennis academy management system with package trac
 - Daily breakdown reports
 - Payroll calculations with hourly rates
 - Monthly statistics dashboard
+
+### 📊 **Analytics Dashboard** (NEW!)
+- Revenue trends (last 30 days)
+- Coach performance metrics
+- Student statistics
+- Package status overview
+- Interactive charts and graphs
+- Top 5 students & coaches leaderboards
 
 ### 🔔 **Smart Notifications**
 - Package expiry alerts
@@ -47,45 +50,48 @@ A comprehensive, mobile-first tennis academy management system with package trac
 - Swipe gestures (left to delete, right to edit)
 - Long-press quick actions
 - Pull-to-refresh
-- Haptic feedback
 - PWA support (installable as app)
 
-### 💼 **Core Features**
-- Simple lesson entry and tracking
-- Daily and monthly revenue totals
-- Complete lesson history
-- Excel import/export
-- Senior-friendly large text
-- Responsive design
+### 🌐 **100% Offline Capable** (NEW!)
+- ✅ Works completely offline (no internet required)
+- ✅ Service Worker for caching
+- ✅ PWA manifest for app installation
+- ✅ All assets bundled locally
+- ✅ Offline fallback scripts included
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-
-- Python 3.11 or higher
+- Python 3.10 or higher
 - pip (Python package manager)
 
 ### Installation
 
 1. **Clone the repository:**
-```bash
-git clone https://github.com/YOUR_USERNAME/tennis-billing-software.git
-cd tennis-billing-software
-```
+   ```bash
+   git clone https://github.com/rahulborse-netizen/bilingsoftware.git
+   cd bilingsoftware
+   ```
 
 2. **Install dependencies:**
-```bash
-pip install -r requirements.txt
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-3. **Start the server:**
-```bash
-python simple_app.py
-```
+3. **Download offline assets (optional but recommended):**
+   ```bash
+   python download_offline_assets.py
+   ```
+   *Note: App works with fallback scripts even without this step!*
 
-4. **Access the application:**
-- Desktop: `http://localhost:5001`
-- Mobile: `http://[YOUR_IP]:5001`
+4. **Start the server:**
+   ```bash
+   python simple_app.py
+   ```
+
+5. **Access the application:**
+   - Desktop: `http://localhost:5001`
+   - Mobile: `http://[YOUR_IP]:5001`
 
 ### 📱 Mobile Access
 
@@ -98,75 +104,72 @@ python simple_app.py
    - Go to: `http://YOUR_IP:5001`
    - Add to home screen for app-like experience
 
+## 🌐 Offline Mode
+
+The app is **100% offline-capable**! After the first visit (to cache assets), it works completely without internet.
+
+### Testing Offline Mode:
+1. Open the app in browser
+2. Open DevTools (F12) → Network tab
+3. Check "Offline" checkbox
+4. Refresh - **Everything still works!** ✅
+
+See `OFFLINE_README.md` for detailed offline setup instructions.
+
 ## 📖 Documentation
 
-- **[Quick Start Guide](QUICK_START_ENHANCED.md)** - Get up and running in 5 minutes
-- **[Complete Guide](README_ENHANCED.md)** - Detailed feature documentation
-- **[Mobile Testing](MOBILE_TESTING_GUIDE.md)** - Comprehensive testing checklist
-- **[Migration Guide](MIGRATION_GUIDE.md)** - Upgrade from v1.0
-- **[After Restart](START_AFTER_RESTART.md)** - Quick restart instructions
-
-## 🎯 Usage
-
-### Adding a Coach
-1. Navigate to Coaches page (👨‍🏫)
-2. Click "ADD NEW COACH"
-3. Enter details and hourly rate
-4. Save
-
-### Creating a Package
-1. Navigate to Packages page (📦)
-2. Click "ADD NEW PACKAGE"
-3. Enter student name and package details
-4. System auto-calculates total classes
-5. Save
-
-### Adding a Lesson
-1. Click the green + button (mobile) or "ADD NEW LESSON"
-2. Enter student name (auto-detects packages)
-3. Select coach
-4. Fill in time and hours
-5. If student has package, it auto-deducts
-6. Save
-
-### Mobile Gestures
-- **Swipe left** on lesson → Delete
-- **Swipe right** on lesson → Edit
-- **Long press** (800ms) → Quick menu
-- **Pull down** from top → Refresh
+- **Quick Start**: This README
+- **Offline Setup**: `OFFLINE_SETUP.md` or `OFFLINE_README.md`
+- **Deployment**: `DEPLOYMENT.md`
+- **Changelog**: `CHANGELOG.md`
 
 ## 🏗️ Tech Stack
 
 - **Backend:** Flask 3.0.0, Python 3.11+
 - **Database:** SQLite with SQLAlchemy
-- **Frontend:** Bootstrap 5.3, Vanilla JavaScript
+- **Frontend:** Bootstrap 5.3 (local), Vanilla JavaScript
+- **Charts:** Chart.js 4.4.0 (local) + offline fallback
 - **Scheduler:** APScheduler 3.10.4
 - **Excel:** openpyxl 3.1.5
 
 ## 📁 Project Structure
 
 ```
-BillingSoftware/
-├── simple_app.py           # Main Flask application
-├── models.py               # Database models
-├── scheduler.py            # Auto-export scheduler
-├── requirements.txt        # Python dependencies
-├── simple_billing.db       # SQLite database
-├── START_SIMPLE.bat        # Quick start script
-├── templates/              # HTML templates
-│   ├── simple_index.html   # Home page
-│   ├── simple_history.html # History view
-│   ├── packages.html       # Package management
-│   ├── coaches.html        # Coach management
-│   └── notifications.html  # Notification center
+bilingsoftware/
+├── simple_app.py              # Main Flask application
+├── models.py                  # Database models
+├── scheduler.py               # Auto-export scheduler
+├── requirements.txt           # Python dependencies
+├── download_offline_assets.py # Download script for offline assets
+├── Procfile                   # Heroku/Render deployment
+├── wsgi.py                    # WSGI entry point
+├── gunicorn_config.py         # Production server config
+├── templates/                 # HTML templates
+│   ├── base.html              # Modern base template
+│   ├── simple_index.html     # Home page
+│   ├── simple_history.html   # History view
+│   ├── packages.html         # Package management
+│   ├── coaches.html          # Coach management
+│   ├── notifications.html    # Notification center
+│   └── analytics.html        # Analytics dashboard (NEW!)
 ├── static/
+│   ├── lib/                  # Offline assets
+│   │   ├── bootstrap.min.css
+│   │   ├── bootstrap.bundle.min.js
+│   │   ├── chart.umd.min.js
+│   │   └── icons.css
 │   ├── css/
-│   │   ├── style.css       # Main styles
-│   │   └── mobile.css      # Mobile-specific
-│   └── js/
-│       ├── main.js         # Core JavaScript
-│       └── mobile.js       # Mobile features
-└── exports/                # Monthly Excel files
+│   │   ├── style.css
+│   │   ├── mobile.css
+│   │   └── bootstrap-fallback.css
+│   ├── js/
+│   │   ├── main.js
+│   │   ├── mobile.js
+│   │   ├── offline-bootstrap.js
+│   │   └── offline-charts.js
+│   ├── sw.js                  # Service Worker (offline support)
+│   └── manifest.json          # PWA Manifest
+└── exports/                   # Monthly Excel files
 ```
 
 ## 🔧 Configuration
@@ -189,6 +192,16 @@ trigger = CronTrigger(
 )
 ```
 
+## 🚀 Deployment
+
+The app is ready to deploy on:
+- **Render.com** (recommended - free tier)
+- **Railway.app** (easy deployment)
+- **Heroku** (classic platform)
+- **VPS** (DigitalOcean, AWS, etc.)
+
+See `DEPLOYMENT.md` for detailed instructions.
+
 ## 📊 Database Schema
 
 ### Tables
@@ -198,18 +211,20 @@ trigger = CronTrigger(
 - **notifications** - Alert system
 - **monthly_exports** - Export history
 
-## 🎨 Screenshots
+## 🎨 Features Overview
 
 ### Desktop View
-- Clean, senior-friendly interface
+- Clean, modern interface
 - Large buttons and text
 - Easy navigation
+- Analytics dashboard with charts
 
 ### Mobile View
 - Card-based layouts
 - Bottom navigation
 - Touch-optimized controls
 - Swipe gestures
+- PWA installable
 
 ## 🤝 Contributing
 
@@ -217,36 +232,21 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License.
 
 ## 🆘 Support
 
 For issues or questions:
-1. Check the documentation in the `docs` folder
-2. Review the [FAQ](README_ENHANCED.md#-troubleshooting)
+1. Check the documentation files
+2. Review the FAQ
 3. Open an issue on GitHub
-
-## 📈 Roadmap
-
-- [ ] User authentication
-- [ ] Email notifications
-- [ ] SMS reminders
-- [ ] Student portal
-- [ ] Online payment integration
-- [ ] Multi-location support
-- [ ] Attendance tracking
-- [ ] Progress reports
 
 ## 🎉 Acknowledgments
 
 Built with ❤️ for tennis academies and coaches worldwide.
 
-## 📞 Contact
-
-For business inquiries or custom development, please reach out through GitHub.
-
 ---
 
-**Version 2.0** - Enhanced with Package Management, Coach Tracking, Automated Exports, and Mobile-First Design
+**Version 2.1** - Enhanced with Analytics Dashboard, Offline Support, Modern UI, and Production Deployment Ready
 
 Made with 🎾 for Tennis Academies

@@ -1,0 +1,31 @@
+/* Simple Icon System - No External Dependencies */
+/* Using Unicode/Emoji icons instead of Font Awesome */
+
+.icon-home::before { content: "🏠"; }
+.icon-box::before { content: "📦"; }
+.icon-user-tie::before { content: "👨‍🏫"; }
+.icon-chart-line::before { content: "📊"; }
+.icon-bell::before { content: "🔔"; }
+.icon-star::before { content: "⭐"; }
+.icon-trophy::before { content: "🏆"; }
+.icon-chart-bar::before { content: "📈"; }
+.icon-chart-pie::before { content: "🥧"; }
+.icon-calendar-alt::before { content: "📅"; }
+.icon-plus::before { content: "➕"; }
+.icon-edit::before { content: "✏️"; }
+.icon-delete::before { content: "🗑️"; }
+.icon-save::before { content: "💾"; }
+.icon-check::before { content: "✅"; }
+.icon-warning::before { content: "⚠️"; }
+.icon-info::before { content: "ℹ️"; }
+.icon-export::before { content: "📤"; }
+.icon-import::before { content: "📥"; }
+
+/* Icon styling */
+[class^="icon-"] {
+    display: inline-block;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    text-decoration: none;
+}

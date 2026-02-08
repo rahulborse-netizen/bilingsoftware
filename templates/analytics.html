@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - Tennis Billing{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .metric-value {
+        font-size: 48px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+    
+    .metric-label {
+        font-size: 18px;
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="padding-bottom: 120px;">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-center mb-4" style="font-size: 42px; font-weight: bold; color: #2c3e50;">
+                <span class="icon-chart-line"></span> Analytics Dashboard
+            </h1>
+        </div>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-6 mb-3">
+            <div class="metric-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="metric-label">Total Revenue</div>
+                <div class="metric-value" id="totalRevenue">$0</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="metric-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="metric-label">Total Lessons</div>
+                <div class="metric-value" id="totalLessons">0</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="metric-label">Active Packages</div>
+                <div class="metric-value" id="activePackages">0</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="metric-label">Active Coaches</div>
+                <div class="metric-value" id="activeCoaches">0</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 1 -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="chart-container">
+                <h3 style="font-size: 24px; margin-bottom: 20px; font-weight: bold;">
+                    <span class="icon-chart-bar"></span> Revenue Trend (Last 30 Days)
+                </h3>
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="chart-container">
+                <h3 style="font-size: 24px; margin-bottom: 20px; font-weight: bold;">
+                    <span class="icon-chart-pie"></span> Revenue by Coach
+                </h3>
+                <canvas id="coachRevenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 2 -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="chart-container">
+                <h3 style="font-size: 24px; margin-bottom: 20px; font-weight: bold;">
+                    <span class="icon-calendar-alt"></span> Lessons per Day (This Month)
+                </h3>
+                <canvas id="lessonsChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="chart-container">
+                <h3 style="font-size: 24px; margin-bottom: 20px; font-weight: bold;">
+                    <span class="icon-box"></span> Package Status Distribution
+                </h3>
+                <canvas id="packageStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Students & Coaches -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="modern-card">
+                <div class="gradient-header">
+                    <h3 style="font-size: 24px; margin: 0;">
+                        <span class="icon-star"></span> Top 5 Students
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <div id="topStudentsList"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="modern-card">
+                <div class="gradient-header">
+                    <h3 style="font-size: 24px; margin: 0;">
+                        <span class="icon-trophy"></span> Top 5 Coaches
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <div id="topCoachesList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let revenueChart, coachRevenueChart, lessonsChart, packageStatusChart;
+    
+    // Load analytics data
+    async function loadAnalytics() {
+        try {
+            const response = await fetch('/api/analytics');
+            const data = await response.json();
+            
+            if (data.success) {
+                updateMetrics(data.metrics);
+                renderCharts(data.charts);
+                renderTopLists(data.top_students, data.top_coaches);
+            }
+        } catch (error) {
+            console.error('Error loading analytics:', error);
+            showToast('Error loading analytics data', 'error');
+        }
+    }
+    
+    function updateMetrics(metrics) {
+        document.getElementById('totalRevenue').textContent = '$' + metrics.total_revenue.toFixed(2);
+        document.getElementById('totalLessons').textContent = metrics.total_lessons;
+        document.getElementById('activePackages').textContent = metrics.active_packages;
+        document.getElementById('activeCoaches').textContent = metrics.active_coaches;
+    }
+    
+    function renderCharts(charts) {
+        // Revenue Trend Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: charts.revenue_trend.labels,
+                datasets: [{
+                    label: 'Daily Revenue',
+                    data: charts.revenue_trend.data,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+        
+        // Coach Revenue Chart
+        const coachCtx = document.getElementById('coachRevenueChart').getContext('2d');
+        coachRevenueChart = new Chart(coachCtx, {
+            type: 'doughnut',
+            data: {
+                labels: charts.coach_revenue.labels,
+                datasets: [{
+                    data: charts.coach_revenue.data,
+                    backgroundColor: [
+                        '#667eea', '#11998e', '#f5576c', '#4facfe', '#f093fb'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+        
+        // Lessons Chart
+        const lessonsCtx = document.getElementById('lessonsChart').getContext('2d');
+        lessonsChart = new Chart(lessonsCtx, {
+            type: 'bar',
+            data: {
+                labels: charts.lessons_per_day.labels,
+                datasets: [{
+                    label: 'Lessons',
+                    data: charts.lessons_per_day.data,
+                    backgroundColor: '#38ef7d'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+        
+        // Package Status Chart
+        const packageCtx = document.getElementById('packageStatusChart').getContext('2d');
+        packageStatusChart = new Chart(packageCtx, {
+            type: 'pie',
+            data: {
+                labels: charts.package_status.labels,
+                datasets: [{
+                    data: charts.package_status.data,
+                    backgroundColor: ['#11998e', '#ffc107', '#dc3545']
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    }
+    
+    function renderTopLists(students, coaches) {
+        const studentsHtml = students.map((s, i) => `
+            <div class="d-flex justify-content-between align-items-center mb-3 p-3" style="background: #f8f9fa; border-radius: 10px;">
+                <div>
+                    <div style="font-size: 20px; font-weight: bold;">${i + 1}. ${s.name}</div>
+                    <div style="font-size: 16px; color: #6c757d;">${s.lessons} lessons</div>
+                </div>
+                <div style="font-size: 24px; font-weight: bold; color: #11998e;">$${s.revenue.toFixed(2)}</div>
+            </div>
+        `).join('');
+        document.getElementById('topStudentsList').innerHTML = studentsHtml;
+        
+        const coachesHtml = coaches.map((c, i) => `
+            <div class="d-flex justify-content-between align-items-center mb-3 p-3" style="background: #f8f9fa; border-radius: 10px;">
+                <div>
+                    <div style="font-size: 20px; font-weight: bold;">${i + 1}. ${c.name}</div>
+                    <div style="font-size: 16px; color: #6c757d;">${c.hours.toFixed(1)} hours</div>
+                </div>
+                <div style="font-size: 24px; font-weight: bold; color: #667eea;">$${c.earnings.toFixed(2)}</div>
+            </div>
+        `).join('');
+        document.getElementById('topCoachesList').innerHTML = coachesHtml;
+    }
+    
+    // Load on page load
+    document.addEventListener('DOMContentLoaded', loadAnalytics);
+</script>
+{% endblock %}
